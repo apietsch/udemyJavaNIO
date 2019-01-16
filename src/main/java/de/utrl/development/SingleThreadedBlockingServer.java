@@ -11,16 +11,19 @@ public class SingleThreadedBlockingServer {
     public static void main(String[] args) throws IOException {
         ServerSocket ss = new ServerSocket(8080);
         while (true) {
-            Socket s = ss.accept(); // never null
-            InputStream in = s.getInputStream();
-            OutputStream out = s.getOutputStream();
-            int data;
-            while ((data = in.read()) != -1) {
-                out.write(transmogrify(data));
+            Socket s = ss.accept();
+            System.out.println(("You are connected to socket: " + s + " bound on local port: " + s.getLocalPort() + " and connected to remote port: " + s.getPort()));
+            try (s;
+                 InputStream in = s.getInputStream();
+                 OutputStream out = s.getOutputStream()
+            ) {
+                int data;
+                while ((data = in.read()) != -1) {
+                    out.write(transmogrify(data));
+                }
+            } finally {
+                System.out.println("Disconnected. Socket is should be closed now: " + s.isClosed());
             }
-            out.close();
-            in.close();
-            s.close();
         }
     }
 
